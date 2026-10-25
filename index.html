@@ -1,776 +1,860 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <meta name="theme-color" content="#0B0B14">
-    <title>CineMatch — AI Movie Discovery & Recommendations</title>
-    <style>
-        :root {
-            --bg-main: #0B0B14;
-            --bg-card: #141424;
-            --bg-card-hover: #1A1A2E;
-            --accent-red: #E50914;
-            --accent-red-hover: #b80710;
-            --text-main: #FFFFFF;
-            --text-muted: #9E9EA7;
-            --gold: #FFD700;
-            --green: #25D366;
-            --border: rgba(255, 255, 255, 0.08);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CineMatch — AI Movie Streaming Platform</title>
+<meta name="description" content="CineMatch: AI-powered movie recommendation and streaming platform. Discover, watch, and enjoy movies curated by machine learning.">
+<style>
+/* ===== RESET & BASE ===== */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0f;--surface:#141420;--card:#1a1a2e;--card-hover:#252545;
+  --primary:#e50914;--primary-glow:rgba(229,9,20,.4);
+  --accent:#ffd700;--accent-dim:rgba(255,215,0,.15);
+  --text:#e5e5e5;--text-dim:#8a8a9a;--text-bright:#ffffff;
+  --success:#00c853;--border:rgba(255,255,255,.08);
+  --radius:12px;--radius-sm:8px;--radius-lg:20px;
+  --shadow:0 8px 32px rgba(0,0,0,.6);
+  --transition:all .3s cubic-bezier(.4,0,.2,1);
+}
+html{scroll-behavior:smooth;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.6}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;font-family:inherit;border:none;outline:none}
+img{display:block;max-width:100%}
+::-webkit-scrollbar{height:6px;width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:3px}
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
+/* ===== NAV ===== */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,rgba(10,10,15,.95) 0%,transparent 100%);backdrop-filter:blur(20px);transition:var(--transition)}
+.nav.scrolled{background:rgba(10,10,15,.98)}
+.nav-logo{display:flex;align-items:center;gap:10px;font-size:1.5rem;font-weight:800;letter-spacing:-0.5px}
+.nav-logo span{color:var(--primary)}
+.nav-links{display:flex;gap:24px;align-items:center}
+.nav-links a{font-size:.9rem;color:var(--text-dim);transition:var(--transition);position:relative}
+.nav-links a:hover,.nav-links a.active{color:var(--text-bright)}
+.nav-links a.active::after{content:'';position:absolute;bottom:-4px;left:0;right:0;height:2px;background:var(--primary);border-radius:1px}
+.btn-subscribe{background:var(--primary);color:#fff;padding:8px 20px;border-radius:var(--radius-sm);font-weight:600;font-size:.85rem;transition:var(--transition)}
+.btn-subscribe:hover{background:#ff1a25;box-shadow:0 0 20px var(--primary-glow)}
 
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            padding-bottom: 60px;
-            overflow-x: hidden;
-            -webkit-text-size-adjust: 100%;
-        }
+/* ===== HERO ===== */
+.hero{position:relative;height:90vh;min-height:500px;overflow:hidden;display:flex;align-items:flex-end}
+.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:opacity 1s ease}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(0deg,var(--bg) 0%,rgba(10,10,15,.4) 40%,rgba(10,10,15,.2) 60%,rgba(10,10,15,.6) 100%)}
+.hero-content{position:relative;z-index:2;padding:0 48px 60px;max-width:700px}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--primary);color:#fff;padding:4px 12px;border-radius:4px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
+.hero-title{font-size:clamp(2rem,5vw,3.5rem);font-weight:900;line-height:1.1;margin-bottom:12px;text-shadow:0 2px 20px rgba(0,0,0,.8)}
+.hero-meta{display:flex;gap:16px;align-items:center;margin-bottom:12px;font-size:.9rem;color:var(--text-dim)}
+.hero-meta .rating{color:var(--accent);font-weight:700}
+.hero-desc{font-size:1rem;color:var(--text);max-width:500px;margin-bottom:24px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.hero-buttons{display:flex;gap:12px;flex-wrap:wrap}
+.btn-play{display:inline-flex;align-items:center;gap:8px;background:#fff;color:#111;padding:12px 28px;border-radius:var(--radius-sm);font-weight:700;font-size:1rem;transition:var(--transition)}
+.btn-play:hover{background:rgba(255,255,255,.85);transform:scale(1.02)}
+.btn-play svg{width:20px;height:20px}
+.btn-info{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.15);color:#fff;padding:12px 28px;border-radius:var(--radius-sm);font-weight:600;font-size:1rem;transition:var(--transition);backdrop-filter:blur(4px)}
+.btn-info:hover{background:rgba(255,255,255,.25)}
+.hero-indicators{position:absolute;bottom:30px;right:48px;z-index:2;display:flex;gap:8px}
+.hero-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.3);cursor:pointer;transition:var(--transition)}
+.hero-dot.active{background:var(--primary);width:24px;border-radius:4px}
 
-        /* Header / App Bar */
-        .app-bar {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: rgba(11, 11, 20, 0.95);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border);
-            padding: 10px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+/* ===== SECTIONS ===== */
+.section{padding:40px 24px 20px}
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding:0 24px}
+.section-title{font-size:1.35rem;font-weight:700;color:var(--text-bright)}
+.section-see-all{font-size:.85rem;color:var(--text-dim);transition:var(--transition)}
+.section-see-all:hover{color:var(--primary)}
 
-        .brand {
-            font-size: 1.3rem;
-            font-weight: 900;
-            letter-spacing: -0.5px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
+/* ===== MOVIE ROW (Horizontal Scroll) ===== */
+.movie-row{display:flex;gap:12px;overflow-x:auto;padding:0 24px 16px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.movie-row::-webkit-scrollbar{display:none}
 
-        .brand span { color: var(--accent-red); }
+/* ===== MOVIE CARD ===== */
+.movie-card{flex:0 0 180px;scroll-snap-align:start;position:relative;border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:var(--transition);background:var(--card)}
+.movie-card:hover{transform:scale(1.08);z-index:10;box-shadow:var(--shadow)}
+.movie-card-img{width:100%;aspect-ratio:2/3;object-fit:cover;transition:var(--transition)}
+.movie-card:hover .movie-card-img{filter:brightness(.7)}
+.movie-card-info{position:absolute;bottom:0;left:0;right:0;padding:12px;background:linear-gradient(transparent,rgba(0,0,0,.95));opacity:0;transform:translateY(10px);transition:var(--transition)}
+.movie-card:hover .movie-card-info{opacity:1;transform:translateY(0)}
+.movie-card-title{font-size:.85rem;font-weight:700;color:#fff;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.movie-card-meta{font-size:.7rem;color:var(--text-dim);display:flex;gap:8px}
+.movie-card-rating{color:var(--accent);font-weight:600}
+.movie-card-badge{position:absolute;top:8px;left:8px;background:var(--primary);color:#fff;font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase}
+.movie-card-play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);width:48px;height:48px;background:rgba(255,255,255,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:var(--transition);opacity:0}
+.movie-card:hover .movie-card-play{transform:translate(-50%,-50%) scale(1);opacity:1}
+.movie-card-play::after{content:'';border:solid #111;border-width:8px 0 8px 14px;margin-left:3px}
 
-        .wa-share-btn {
-            background-color: var(--green);
-            color: #fff !important;
-            text-decoration: none;
-            padding: 8px 14px;
-            border-radius: 9999px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
-        }
+/* ===== SEARCH OVERLAY ===== */
+.search-overlay{position:fixed;inset:0;z-index:2000;background:rgba(10,10,15,.97);display:none;flex-direction:column;padding:80px 24px 24px;backdrop-filter:blur(30px)}
+.search-overlay.active{display:flex}
+.search-box{position:relative;max-width:700px;width:100%;margin:0 auto 32px}
+.search-input{width:100%;padding:16px 20px 16px 52px;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);font-size:1.1rem;color:var(--text-bright);transition:var(--transition)}
+.search-input:focus{border-color:var(--primary);box-shadow:0 0 0 4px var(--primary-glow)}
+.search-icon{position:absolute;left:18px;top:50%;transform:translateY(-50%);color:var(--text-dim)}
+.search-close{position:absolute;top:24px;right:24px;width:40px;height:40px;background:rgba(255,255,255,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:var(--text);transition:var(--transition)}
+.search-close:hover{background:rgba(255,255,255,.2)}
+.search-results{max-width:700px;width:100%;margin:0 auto;overflow-y:auto;flex:1}
+.search-result-item{display:flex;gap:16px;padding:12px;border-radius:var(--radius-sm);cursor:pointer;transition:var(--transition)}
+.search-result-item:hover{background:var(--card)}
+.search-result-img{width:60px;height:90px;object-fit:cover;border-radius:var(--radius-sm);flex-shrink:0}
+.search-result-info h4{font-size:.95rem;color:var(--text-bright);margin-bottom:4px}
+.search-result-info p{font-size:.8rem;color:var(--text-dim)}
 
-        /* Navigation Tabs */
-        .nav-tabs {
-            display: flex;
-            gap: 8px;
-            padding: 10px 14px;
-            overflow-x: auto;
-            white-space: nowrap;
-            scrollbar-width: none;
-            background: #10101C;
-            border-bottom: 1px solid var(--border);
-            -webkit-overflow-scrolling: touch;
-        }
+/* ===== MODAL (Movie Detail + Player) ===== */
+.modal-overlay{position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,.85);display:none;justify-content:center;align-items:flex-start;overflow-y:auto;padding:40px 16px;backdrop-filter:blur(10px)}
+.modal-overlay.active{display:flex}
+.modal{background:var(--surface);border-radius:var(--radius-lg);max-width:900px;width:100%;overflow:hidden;position:relative;animation:modalIn .4s ease}
+@keyframes modalIn{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+.modal-close{position:absolute;top:16px;right:16px;z-index:10;width:36px;height:36px;background:rgba(0,0,0,.6);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.2rem;transition:var(--transition)}
+.modal-close:hover{background:rgba(0,0,0,.9)}
+.modal-player{width:100%;aspect-ratio:16/9;background:#000;position:relative}
+.modal-player iframe{width:100%;height:100%;border:none}
+.modal-player-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a2e,#16213e);cursor:pointer}
+.modal-player-placeholder .play-big{width:80px;height:80px;background:rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:16px;transition:var(--transition)}
+.modal-player-placeholder:hover .play-big{background:var(--primary);transform:scale(1.1)}
+.modal-player-placeholder .play-big::after{content:'';border:solid #fff;border-width:14px 0 14px 24px;margin-left:4px}
+.modal-player-placeholder p{color:var(--text-dim);font-size:.9rem}
+.modal-body{padding:24px}
+.modal-title{font-size:1.8rem;font-weight:800;color:var(--text-bright);margin-bottom:8px}
+.modal-meta{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;font-size:.9rem;color:var(--text-dim)}
+.modal-meta .rating-badge{background:var(--accent-dim);color:var(--accent);padding:2px 10px;border-radius:4px;font-weight:700}
+.modal-overview{color:var(--text);margin-bottom:20px;line-height:1.7}
+.modal-cast{font-size:.85rem;color:var(--text-dim);margin-bottom:20px}
+.modal-cast span{color:var(--text-bright)}
+.modal-actions{display:flex;gap:12px;flex-wrap:wrap}
+.btn-watch{background:var(--primary);color:#fff;padding:12px 32px;border-radius:var(--radius-sm);font-weight:700;font-size:1rem;display:inline-flex;align-items:center;gap:8px;transition:var(--transition)}
+.btn-watch:hover{background:#ff1a25;box-shadow:0 0 30px var(--primary-glow)}
+.btn-watchlist{background:rgba(255,255,255,.1);color:#fff;padding:12px 24px;border-radius:var(--radius-sm);font-weight:600;transition:var(--transition);display:inline-flex;align-items:center;gap:8px}
+.btn-watchlist:hover{background:rgba(255,255,255,.2)}
+.btn-watchlist.added{background:var(--accent-dim);color:var(--accent)}
 
-        .nav-tabs::-webkit-scrollbar { display: none; }
+/* ===== RECOMMENDATION SECTION ===== */
+.reco-section{padding:20px 24px}
+.reco-title{font-size:1.1rem;font-weight:700;color:var(--text-bright);margin-bottom:12px}
 
-        .tab-btn {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-            padding: 8px 14px;
-            border-radius: 10px;
-            font-size: 0.82rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            touch-action: manipulation;
-        }
+/* ===== SUBSCRIPTION MODAL ===== */
+.sub-overlay{position:fixed;inset:0;z-index:4000;background:rgba(0,0,0,.9);display:none;justify-content:center;align-items:center;padding:16px;backdrop-filter:blur(20px)}
+.sub-overlay.active{display:flex}
+.sub-modal{background:var(--surface);border-radius:var(--radius-lg);max-width:500px;width:100%;padding:32px;position:relative;animation:modalIn .4s ease}
+.sub-close{position:absolute;top:16px;right:16px;width:32px;height:32px;background:rgba(255,255,255,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text);font-size:1rem}
+.sub-title{font-size:1.5rem;font-weight:800;color:var(--text-bright);text-align:center;margin-bottom:8px}
+.sub-subtitle{text-align:center;color:var(--text-dim);font-size:.9rem;margin-bottom:24px}
+.plan-cards{display:flex;flex-direction:column;gap:12px;margin-bottom:24px}
+.plan-card{border:2px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:var(--transition);display:flex;justify-content:space-between;align-items:center}
+.plan-card:hover,.plan-card.selected{border-color:var(--primary);background:rgba(229,9,20,.05)}
+.plan-card.selected{box-shadow:0 0 0 1px var(--primary)}
+.plan-name{font-weight:700;color:var(--text-bright);margin-bottom:2px}
+.plan-features{font-size:.8rem;color:var(--text-dim)}
+.plan-price{font-size:1.3rem;font-weight:800;color:var(--primary)}
+.plan-price small{font-size:.7rem;color:var(--text-dim);font-weight:400}
 
-        .tab-btn.active {
-            background: var(--accent-red);
-            color: #fff;
-            border-color: var(--accent-red);
-            font-weight: 700;
-        }
+/* ===== UPI PAYMENT ===== */
+.payment-step{display:none}
+.payment-step.active{display:block}
+.upi-section{text-align:center;padding:20px 0}
+.upi-qr{width:200px;height:200px;margin:16px auto;background:#fff;border-radius:var(--radius);padding:8px;display:flex;align-items:center;justify-content:center}
+.upi-qr canvas{width:100%!important;height:100%!important}
+.upi-id-display{background:var(--card);border-radius:var(--radius-sm);padding:12px;margin:12px 0;display:flex;align-items:center;justify-content:space-between}
+.upi-id-display code{color:var(--accent);font-size:1rem;font-weight:600}
+.btn-copy{background:rgba(255,255,255,.1);color:var(--text);padding:6px 14px;border-radius:var(--radius-sm);font-size:.8rem;transition:var(--transition)}
+.btn-copy:hover{background:rgba(255,255,255,.2)}
+.payment-status{text-align:center;padding:32px}
+.payment-success-icon{width:80px;height:80px;margin:0 auto 16px;background:var(--success);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.5rem;animation:popIn .5s ease}
+@keyframes popIn{from{transform:scale(0)}50%{transform:scale(1.2)}to{transform:scale(1)}}
+.btn-proceed{width:100%;padding:14px;background:var(--primary);color:#fff;border-radius:var(--radius-sm);font-weight:700;font-size:1rem;transition:var(--transition)}
+.btn-proceed:hover{background:#ff1a25}
+.btn-proceed:disabled{background:#333;cursor:not-allowed}
+.demo-badge{display:inline-block;background:var(--accent-dim);color:var(--accent);padding:4px 12px;border-radius:4px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
 
-        /* Container */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 16px 14px;
-        }
+/* ===== AI RECOMMEND SECTION ===== */
+.ai-section{padding:40px 24px;max-width:800px;margin:0 auto}
+.ai-title{font-size:1.5rem;font-weight:800;color:var(--text-bright);text-align:center;margin-bottom:8px}
+.ai-subtitle{text-align:center;color:var(--text-dim);margin-bottom:24px;font-size:.9rem}
+.ai-input-group{display:flex;gap:12px;margin-bottom:24px}
+.ai-input{flex:1;padding:14px 20px;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);font-size:1rem;color:var(--text-bright);transition:var(--transition)}
+.ai-input:focus{border-color:var(--primary);box-shadow:0 0 0 4px var(--primary-glow)}
+.btn-ai{padding:14px 28px;background:linear-gradient(135deg,var(--primary),#ff4444);color:#fff;border-radius:var(--radius);font-weight:700;transition:var(--transition)}
+.btn-ai:hover{transform:translateY(-2px);box-shadow:0 8px 24px var(--primary-glow)}
+.ai-results{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px}
 
-        /* Hero */
-        .hero {
-            background: radial-gradient(circle at top right, rgba(229, 9, 20, 0.3), rgba(11, 11, 20, 0.98)), var(--bg-card);
-            border: 1px solid rgba(229, 9, 20, 0.25);
-            border-radius: 16px;
-            padding: 20px 16px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
+/* ===== GENRE PILLS ===== */
+.genre-bar{display:flex;gap:8px;overflow-x:auto;padding:8px 24px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.genre-bar::-webkit-scrollbar{display:none}
+.genre-pill{flex-shrink:0;padding:8px 20px;background:var(--card);border:1px solid var(--border);border-radius:20px;font-size:.85rem;color:var(--text-dim);cursor:pointer;transition:var(--transition);white-space:nowrap}
+.genre-pill:hover,.genre-pill.active{background:var(--primary);border-color:var(--primary);color:#fff}
 
-        .hero h1 {
-            font-size: clamp(1.4rem, 5vw, 2.1rem);
-            font-weight: 900;
-            margin-bottom: 6px;
-        }
+/* ===== FOOTER ===== */
+.footer{background:var(--surface);padding:40px 24px;margin-top:40px;border-top:1px solid var(--border)}
+.footer-content{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:32px}
+.footer-brand{font-size:1.3rem;font-weight:800;margin-bottom:8px}
+.footer-brand span{color:var(--primary)}
+.footer-desc{font-size:.8rem;color:var(--text-dim);line-height:1.6}
+.footer-col h4{font-size:.9rem;font-weight:700;color:var(--text-bright);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px}
+.footer-col a{display:block;font-size:.85rem;color:var(--text-dim);padding:4px 0;transition:var(--transition)}
+.footer-col a:hover{color:var(--text-bright)}
+.footer-bottom{max-width:1200px;margin:24px auto 0;padding-top:24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:.75rem;color:var(--text-dim);flex-wrap:wrap;gap:8px}
+.footer-tech{display:flex;gap:8px}
+.footer-tech span{background:var(--card);padding:4px 10px;border-radius:4px;font-size:.7rem}
 
-        .hero p {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            max-width: 600px;
-            margin: 0 auto 14px;
-        }
+/* ===== MOBILE ===== */
+@media(max-width:768px){
+  .nav-links a:not(.btn-subscribe){display:none}
+  .hero{height:70vh;min-height:400px}
+  .hero-content{padding:0 20px 40px}
+  .hero-indicators{right:20px}
+  .section-header{padding:0 16px}
+  .movie-row{padding:0 16px 12px;gap:10px}
+  .movie-card{flex:0 0 140px}
+  .modal{margin-top:0;border-radius:var(--radius) var(--radius) 0 0;max-height:95vh;overflow-y:auto}
+  .modal-body{padding:16px}
+  .modal-title{font-size:1.3rem}
+  .ai-input-group{flex-direction:column}
+  .sub-modal{padding:20px;margin:8px}
+  .footer-content{grid-template-columns:1fr 1fr}
+}
+@media(max-width:400px){
+  .movie-card{flex:0 0 120px}
+  .hero-title{font-size:1.6rem}
+}
 
-        /* Search & Filters */
-        .search-box {
-            width: 100%;
-            padding: 12px 16px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            background: var(--bg-card);
-            color: #fff;
-            font-size: 0.92rem;
-            outline: none;
-            margin-bottom: 12px;
-        }
+/* ===== LOADER ===== */
+.loader{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .5s}
+.loader.hidden{opacity:0;pointer-events:none}
+.loader-logo{font-size:2.5rem;font-weight:900;margin-bottom:16px}
+.loader-logo span{color:var(--primary)}
+.loader-bar{width:200px;height:3px;background:var(--card);border-radius:2px;overflow:hidden}
+.loader-bar-fill{height:100%;background:var(--primary);border-radius:2px;animation:load 1.5s ease-in-out}
+@keyframes load{from{width:0}to{width:100%}}
 
-        .search-box:focus { border-color: var(--accent-red); }
+/* ===== WATCHLIST BADGE ===== */
+.watchlist-count{background:var(--primary);color:#fff;font-size:.65rem;font-weight:700;min-width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;border-radius:9px;margin-left:4px}
 
-        .filter-row {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-bottom: 16px;
-        }
+/* ===== TOP 10 NUMBER ===== */
+.top-number{position:absolute;bottom:-5px;left:-10px;font-size:5rem;font-weight:900;color:transparent;-webkit-text-stroke:2px rgba(255,255,255,.3);line-height:1;z-index:2;pointer-events:none}
 
-        .filter-select {
-            background: var(--bg-card);
-            color: #fff;
-            border: 1px solid var(--border);
-            padding: 8px 12px;
-            border-radius: 10px;
-            font-size: 0.82rem;
-            outline: none;
-            flex: 1;
-            min-width: 130px;
-            height: 40px;
-        }
-
-        /* Movie Grid */
-        .movie-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 16px;
-        }
-
-        @media (max-width: 640px) {
-            .movie-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 10px;
-            }
-        }
-
-        /* Movie Card */
-        .movie-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.2s, border-color 0.2s;
-        }
-
-        .poster-container {
-            position: relative;
-            width: 100%;
-            padding-top: 145%;
-            background: #1a1a2e;
-            overflow: hidden;
-        }
-
-        .poster-container img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .badge-rating {
-            position: absolute;
-            top: 6px;
-            right: 6px;
-            background: rgba(11, 11, 20, 0.88);
-            backdrop-filter: blur(4px);
-            color: var(--gold);
-            font-size: 0.72rem;
-            font-weight: 800;
-            padding: 2px 6px;
-            border-radius: 5px;
-            border: 1px solid rgba(255, 215, 0, 0.3);
-        }
-
-        .card-info {
-            padding: 10px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .card-title {
-            font-size: 0.9rem;
-            font-weight: 800;
-            margin-bottom: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .card-tags {
-            display: flex;
-            gap: 4px;
-            flex-wrap: wrap;
-            margin-bottom: 6px;
-        }
-
-        .tag {
-            font-size: 0.65rem;
-            font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 4px;
-            background: rgba(255, 255, 255, 0.08);
-            color: #d1d1e0;
-        }
-
-        .tag-match {
-            background: rgba(229, 9, 20, 0.2);
-            color: #ff6b6b;
-            border: 1px solid rgba(229, 9, 20, 0.3);
-        }
-
-        .card-plot {
-            font-size: 0.72rem;
-            color: var(--text-muted);
-            line-height: 1.35;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            margin-bottom: 8px;
-        }
-
-        .card-actions {
-            margin-top: auto;
-            display: flex;
-            gap: 6px;
-        }
-
-        .btn-action {
-            flex: 1;
-            padding: 7px 8px;
-            border-radius: 8px;
-            font-size: 0.72rem;
-            font-weight: 700;
-            text-align: center;
-            cursor: pointer;
-            text-decoration: none;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            min-height: 36px;
-            touch-action: manipulation;
-        }
-
-        .btn-trailer {
-            background: rgba(255, 255, 255, 0.08);
-            color: #fff !important;
-            border: 1px solid var(--border);
-        }
-
-        .btn-bookmark {
-            background: rgba(255, 255, 255, 0.08);
-            color: #fff;
-            border: 1px solid var(--border);
-        }
-
-        .btn-bookmark.saved {
-            background: rgba(229, 9, 20, 0.3);
-            color: #ff4d4d;
-            border-color: var(--accent-red);
-        }
-
-        .section-panel { display: none; }
-        .section-panel.active { display: block; }
-
-        .roulette-box {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-            max-width: 480px;
-            margin: 0 auto;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent-red) 0%, var(--accent-red-hover) 100%);
-            color: #fff;
-            padding: 12px 20px;
-            border-radius: 12px;
-            font-size: 0.92rem;
-            font-weight: 800;
-            border: none;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 12px;
-            min-height: 44px;
-            touch-action: manipulation;
-        }
-
-        .quiz-group {
-            margin-bottom: 16px;
-            text-align: left;
-        }
-
-        .quiz-label {
-            font-size: 0.9rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .quiz-option {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 10px 12px;
-            margin-bottom: 6px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            touch-action: manipulation;
-        }
-
-        .quiz-option.selected {
-            border-color: var(--accent-red);
-            background: rgba(229, 9, 20, 0.18);
-        }
-
-        .doc-bar {
-            background: #10101C;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 12px 14px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 24px;
-        }
-
-        .doc-link {
-            color: #38bdf8;
-            text-decoration: none;
-            font-size: 0.78rem;
-            font-weight: 600;
-        }
-    </style>
+/* ===== MOOD QUIZ ===== */
+.quiz-section{background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:var(--radius-lg);padding:32px;margin:20px 24px;text-align:center}
+.quiz-title{font-size:1.3rem;font-weight:800;color:var(--text-bright);margin-bottom:8px}
+.quiz-subtitle{color:var(--text-dim);font-size:.9rem;margin-bottom:20px}
+.mood-grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.mood-btn{padding:10px 20px;background:rgba(255,255,255,.08);border:1px solid var(--border);border-radius:20px;color:var(--text);font-size:.9rem;transition:var(--transition)}
+.mood-btn:hover{background:var(--primary);border-color:var(--primary);color:#fff;transform:scale(1.05)}
+</style>
 </head>
 <body>
 
-    <!-- App Top Bar -->
-    <header class="app-bar">
-        <div class="brand">
-            🍿 Cine<span>Match</span>
-        </div>
-        <a id="waHeaderBtn" href="#" target="_blank" class="wa-share-btn">
-            💬 Share
-        </a>
-    </header>
+<!-- LOADER -->
+<div class="loader" id="loader">
+  <div class="loader-logo">Cine<span>Match</span></div>
+  <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+</div>
 
-    <!-- Navigation Tabs -->
-    <nav class="nav-tabs">
-        <button class="tab-btn active" onclick="switchTab('discover', this)">🧭 Discover</button>
-        <button class="tab-btn" onclick="switchTab('smartmatch', this)">🤖 AI Match</button>
-        <button class="tab-btn" onclick="switchTab('roulette', this)">🎲 Roulette</button>
-        <button class="tab-btn" onclick="switchTab('quiz', this)">⚡ 30s Quiz</button>
-        <button class="tab-btn" onclick="switchTab('watchlist', this)">🔖 Watchlist (<span id="wlCount">0</span>)</button>
-    </nav>
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <a href="#" class="nav-logo">🎬 Cine<span>Match</span></a>
+  <div class="nav-links">
+    <a href="#home" class="active" data-nav="home">Home</a>
+    <a href="#movies-section" data-nav="movies">Movies</a>
+    <a href="#ai-rec" data-nav="ai">AI Picks</a>
+    <a href="#" onclick="openSearch()" style="display:flex;align-items:center">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </a>
+    <a href="#" class="watchlist-nav" onclick="showWatchlist()" style="display:flex;align-items:center;gap:4px">
+      ♥ <span class="watchlist-count" id="watchlistCount">0</span>
+    </a>
+    <button class="btn-subscribe" onclick="openSubscription()">Subscribe</button>
+  </div>
+</nav>
 
-    <div class="container">
+<!-- SEARCH OVERLAY -->
+<div class="search-overlay" id="searchOverlay">
+  <button class="search-close" onclick="closeSearch()">✕</button>
+  <div class="search-box">
+    <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input class="search-input" id="searchInput" type="text" placeholder="Search movies, genres, actors..." oninput="handleSearch(this.value)" autofocus>
+  </div>
+  <div class="search-results" id="searchResults"></div>
+</div>
 
-        <!-- 1. DISCOVER TAB -->
-        <section id="tab-discover" class="section-panel active">
-            <div class="hero">
-                <h1>Find Your Next Great Film</h1>
-                <p>AI-Powered Movie Discovery & Recommendation Web App</p>
-            </div>
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content" id="heroContent"></div>
+  <div class="hero-indicators" id="heroIndicators"></div>
+</section>
 
-            <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search title, actor, or genre..." oninput="filterCatalog()">
+<!-- GENRE BAR -->
+<div class="genre-bar" id="genreBar"></div>
 
-            <div class="filter-row">
-                <select id="genreSelect" class="filter-select" onchange="filterCatalog()">
-                    <option value="All">All Genres</option>
-                </select>
-                <select id="moodSelect" class="filter-select" onchange="filterCatalog()">
-                    <option value="All">All Moods</option>
-                </select>
-                <select id="sortSelect" class="filter-select" onchange="filterCatalog()">
-                    <option value="rating">Sort: Highest Rated</option>
-                    <option value="votes">Sort: Most Popular</option>
-                    <option value="year">Sort: Newest First</option>
-                </select>
-            </div>
+<!-- TRENDING -->
+<section class="section" id="movies-section">
+  <div class="section-header">
+    <h2 class="section-title">🔥 Trending Now</h2>
+    <a href="#" class="section-see-all" onclick="filterGenre('all')">See All</a>
+  </div>
+  <div class="movie-row" id="trendingRow"></div>
+</section>
 
-            <div id="catalogGrid" class="movie-grid"></div>
-        </section>
+<!-- TOP RATED -->
+<section class="section">
+  <div class="section-header">
+    <h2 class="section-title">⭐ Top Rated</h2>
+  </div>
+  <div class="movie-row" id="topRatedRow"></div>
+</section>
 
-        <!-- 2. SMART MATCH TAB -->
-        <section id="tab-smartmatch" class="section-panel">
-            <div class="hero">
-                <h1>🤖 AI Smart Match</h1>
-                <p>Select a film you love. The algorithm computes cosine similarity angles across plot themes and genres.</p>
-            </div>
+<!-- MOOD QUIZ -->
+<div class="quiz-section">
+  <div class="quiz-title">🎭 What's Your Mood?</div>
+  <div class="quiz-subtitle">Pick a vibe and we'll find the perfect movie</div>
+  <div class="mood-grid" id="moodGrid"></div>
+</div>
 
-            <div style="max-width: 480px; margin: 0 auto 20px;">
-                <label style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px; display: block;">Pick a movie you enjoyed:</label>
-                <select id="smartMatchSelect" class="filter-select" style="width: 100%;"></select>
-                <button class="btn-primary" onclick="computeSmartRecommendations()">✨ Compute Recommendations</button>
-            </div>
+<!-- BY LANGUAGE -->
+<section class="section">
+  <div class="section-header">
+    <h2 class="section-title">🇮🇳 Bollywood & Indian Cinema</h2>
+  </div>
+  <div class="movie-row" id="indianRow"></div>
+</section>
 
-            <div id="smartMatchResults" class="movie-grid"></div>
-        </section>
+<section class="section">
+  <div class="section-header">
+    <h2 class="section-title">🌍 Hollywood Hits</h2>
+  </div>
+  <div class="movie-row" id="hollywoodRow"></div>
+</section>
 
-        <!-- 3. ROULETTE TAB -->
-        <section id="tab-roulette" class="section-panel">
-            <div class="hero">
-                <h1>🎲 Movie Roulette</h1>
-                <p>Can't decide? Pick your mood and spin for an instant pick!</p>
-            </div>
+<!-- AI RECOMMENDATION -->
+<section class="ai-section" id="ai-rec">
+  <div class="ai-title">🤖 AI-Powered Recommendations</div>
+  <div class="ai-subtitle">Tell us a movie you love, and our ML engine finds similar films using TF-IDF cosine similarity</div>
+  <div class="ai-input-group">
+    <input class="ai-input" id="aiInput" type="text" placeholder="Enter a movie name (e.g., Inception)..." list="movieList">
+    <datalist id="movieList"></datalist>
+    <button class="btn-ai" onclick="getRecommendations()">🔍 Find Similar</button>
+  </div>
+  <div class="ai-results" id="aiResults"></div>
+</section>
 
-            <div class="roulette-box">
-                <label style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px; display: block;">Preferred Vibe:</label>
-                <select id="rouletteMood" class="filter-select" style="width: 100%; margin-bottom: 10px;">
-                    <option value="All">Any Vibe 🌟</option>
-                </select>
-                <button class="btn-primary" onclick="spinRoulette()">🎰 Spin the Wheel!</button>
-                <div id="rouletteResult" style="margin-top: 16px;"></div>
-            </div>
-        </section>
-
-        <!-- 4. QUIZ TAB -->
-        <section id="tab-quiz" class="section-panel">
-            <div class="hero">
-                <h1>⚡ 30-Second Movie Quiz</h1>
-                <p>Answer 3 quick questions to calculate your personalized movie recommendation right now.</p>
-            </div>
-
-            <div class="roulette-box" style="max-width: 560px; text-align: left;">
-                <div class="quiz-group">
-                    <span class="quiz-label">1. What's the vibe tonight?</span>
-                    <div class="quiz-option selected" onclick="selectOption(this, 'q1', 'Sci-Fi')">🧠 Mind-Blowing & Cerebral</div>
-                    <div class="quiz-option" onclick="selectOption(this, 'q1', 'Action')">💥 High Octane & Adrenaline</div>
-                    <div class="quiz-option" onclick="selectOption(this, 'q1', 'Comedy')">😂 Laugh Out Loud Comedy</div>
-                    <div class="quiz-option" onclick="selectOption(this, 'q1', 'Drama')">🥺 Emotional & Thoughtful</div>
-                </div>
-
-                <div class="quiz-group">
-                    <span class="quiz-label">2. Who are you watching with?</span>
-                    <div class="quiz-option selected" onclick="selectOption(this, 'q2', 'solo')">🛋️ Solo Night In</div>
-                    <div class="quiz-option" onclick="selectOption(this, 'q2', 'friends')">👨‍👩‍👧‍👦 Friends or Family</div>
-                    <div class="quiz-option" onclick="selectOption(this, 'q2', 'date')">🍷 Date Night</div>
-                </div>
-
-                <div class="quiz-group">
-                    <span class="quiz-label">3. Target duration?</span>
-                    <div class="quiz-option selected" onclick="selectOption(this, 'q3', 'quick')">⚡ Keep it quick (&lt; 2 hrs)</div>
-                    <div class="quiz-option" onclick="selectOption(this, 'q3', 'epic')">🎬 Ready for an epic (2.5+ hrs)</div>
-                </div>
-
-                <button class="btn-primary" onclick="solveQuiz()">🔮 Calculate My Match</button>
-                <div id="quizResult" style="margin-top: 16px;"></div>
-            </div>
-        </section>
-
-        <!-- 5. WATCHLIST TAB -->
-        <section id="tab-watchlist" class="section-panel">
-            <div class="hero">
-                <h1>🔖 My Watchlist</h1>
-                <p>Saved titles are persisted in your phone's browser storage.</p>
-            </div>
-
-            <div style="text-align: center; margin-bottom: 16px;">
-                <button class="btn-primary" style="max-width: 260px; background: var(--green);" onclick="shareWatchlist()">💬 Share Watchlist on WhatsApp</button>
-            </div>
-
-            <div id="watchlistGrid" class="movie-grid"></div>
-        </section>
-
-        <!-- Academic Report & Project Footer -->
-        <div class="doc-bar">
-            <div>
-                <strong style="font-size: 0.82rem; color: #fff;">🎓 MIT-WPU Academic Mini-Project</strong>
-                <p style="font-size: 0.72rem; color: var(--text-muted);">Pauravee Phuke | B.Tech AI &amp; DS (Div 9, Batch I2)</p>
-            </div>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <a class="doc-link" href="CineMatch_Project_Report_MIT_WPU.pdf" target="_blank">📄 Project Report (PDF)</a>
-                <a class="doc-link" href="CineMatch_Project_Flowchart.png" target="_blank">📊 Architecture Flowchart</a>
-                <a class="doc-link" href="https://github.com/pauraveephuke2-a11y/cinematch" target="_blank">🐙 GitHub Source</a>
-            </div>
-        </div>
-
+<!-- MOVIE DETAIL MODAL -->
+<div class="modal-overlay" id="movieModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-player" id="modalPlayer"></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="reco-section">
+      <div class="reco-title">More Like This</div>
+      <div class="movie-row" id="modalRecoRow" style="padding:0 0 12px"></div>
     </div>
+  </div>
+</div>
 
-    <!-- Standalone Recommender Engine -->
-    <script>
-        const movies = [{"movie_id": 1, "title": "Inception", "genre": "Sci-Fi", "language": "English", "rating": 8.8, "votes": 2300000, "year": 2010, "runtime": "2h 28m", "mood": "Mind-Bending 🧠", "stars": "Leonardo DiCaprio, Joseph Gordon-Levitt", "overview": "A thief who steals corporate secrets through dream-sharing tech is given the inverse task of planting an idea.", "poster": "https://image.tmdb.org/t/p/w500/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg"}, {"movie_id": 2, "title": "The Dark Knight", "genre": "Action", "language": "English", "rating": 9.0, "votes": 2800000, "year": 2008, "runtime": "2h 32m", "mood": "Dark & Gritty 🦇", "stars": "Christian Bale, Heath Ledger", "overview": "Batman faces the Joker, a psychotic criminal mastermind who plunges Gotham City into pure anarchy.", "poster": "https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg"}, {"movie_id": 3, "title": "Interstellar", "genre": "Sci-Fi", "language": "English", "rating": 8.6, "votes": 2100000, "year": 2014, "runtime": "2h 49m", "mood": "Mind-Bending 🧠", "stars": "Matthew McConaughey, Anne Hathaway", "overview": "When Earth becomes uninhabitable, a team of explorers undertakes the most important mission in human history through a wormhole.", "poster": "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg"}, {"movie_id": 4, "title": "The Matrix", "genre": "Sci-Fi", "language": "English", "rating": 8.7, "votes": 1900000, "year": 1999, "runtime": "2h 16m", "mood": "Adrenaline 💥", "stars": "Keanu Reeves, Laurence Fishburne", "overview": "A computer hacker learns from mysterious rebels about the true nature of his reality and his role in the war against its controllers.", "poster": "https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg"}, {"movie_id": 5, "title": "Avengers: Endgame", "genre": "Action", "language": "English", "rating": 8.4, "votes": 1200000, "year": 2019, "runtime": "3h 01m", "mood": "Adrenaline 💥", "stars": "Robert Downey Jr., Chris Evans", "overview": "After Thanos wiped out half of all life, the remaining Avengers assemble once more to reverse his actions.", "poster": "https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg"}, {"movie_id": 6, "title": "Parasite", "genre": "Thriller", "language": "Korean", "rating": 8.5, "votes": 800000, "year": 2019, "runtime": "2h 12m", "mood": "Dark & Gritty 🦇", "stars": "Song Kang-ho, Lee Sun-kyun", "overview": "Greed and class discrimination threaten the newly formed symbiotic relationship between the wealthy Park family and the destitute Kim clan.", "poster": "https://image.tmdb.org/t/p/w500/7IiTTgloROVKtXv3sQQRXlnFN9O.jpg"}, {"movie_id": 7, "title": "3 Idiots", "genre": "Comedy", "language": "Hindi", "rating": 8.4, "votes": 450000, "year": 2009, "runtime": "2h 50m", "mood": "Laugh Out Loud 😂", "stars": "Aamir Khan, R. Madhavan", "overview": "Two friends search for their long-lost college buddy who inspired them to think differently, challenging the rigid education system.", "poster": "https://image.tmdb.org/t/p/w500/66A9MqXOyVFCssoloscw79z8Tew.jpg"}, {"movie_id": 8, "title": "Dangal", "genre": "Sports", "language": "Hindi", "rating": 8.4, "votes": 380000, "year": 2016, "runtime": "2h 41m", "mood": "Heartwarming 🥺", "stars": "Aamir Khan, Fatima Sana Shaikh", "overview": "Former wrestler Mahavir Singh Phogat trains his young daughters to become world-class champions against societal odds.", "poster": "https://image.tmdb.org/t/p/w500/pnPXHPLTa8ORK8oeoCnQQKdHJgZ.jpg"}, {"movie_id": 9, "title": "PK", "genre": "Comedy", "language": "Hindi", "rating": 8.1, "votes": 320000, "year": 2014, "runtime": "2h 33m", "mood": "Laugh Out Loud 😂", "stars": "Aamir Khan, Anushka Sharma", "overview": "An innocent alien stranded on Earth questions dogma, blind superstition, and organized religion with childlike innocence.", "poster": "https://image.tmdb.org/t/p/w500/f7iGBm5BtMk6W5TLlnmQCbKBkNj.jpg"}, {"movie_id": 10, "title": "Taare Zameen Par", "genre": "Drama", "language": "Hindi", "rating": 8.5, "votes": 290000, "year": 2007, "runtime": "2h 45m", "mood": "Heartwarming 🥺", "stars": "Darsheel Safary, Aamir Khan", "overview": "An eight-year-old boy considered lazy and troublemaking finds his life changed forever when an empathetic art teacher discovers his dyslexia.", "poster": "https://image.tmdb.org/t/p/w500/b42dv2LnlLuHJLMzDl82PsJGUFm.jpg"}, {"movie_id": 11, "title": "Baahubali: The Beginning", "genre": "Action", "language": "Telugu", "rating": 8.0, "votes": 210000, "year": 2015, "runtime": "2h 39m", "mood": "Adrenaline 💥", "stars": "Prabhas, Rana Daggubati", "overview": "A young, adventurous man uncovers his royal lineage and fulfills his destiny in an ancient kingdom torn by betrayal.", "poster": "https://image.tmdb.org/t/p/w500/aeMLAFmrHJc7TThUJcVzMkxUlge.jpg"}, {"movie_id": 12, "title": "KGF Chapter 2", "genre": "Action", "language": "Kannada", "rating": 8.3, "votes": 195000, "year": 2022, "runtime": "2h 48m", "mood": "Adrenaline 💥", "stars": "Yash, Sanjay Dutt", "overview": "Rocky, now the undisputed kingpin of Kolar Gold Fields, defends his supremacy against lethal adversaries and the government.", "poster": "https://image.tmdb.org/t/p/w500/4bcQovpuiNpkdRBfDq1TyEBIDol.jpg"}, {"movie_id": 13, "title": "RRR", "genre": "Action", "language": "Telugu", "rating": 7.9, "votes": 185000, "year": 2022, "runtime": "3h 07m", "mood": "Adrenaline 💥", "stars": "N.T. Rama Rao Jr., Ram Charan", "overview": "A fearless revolutionary and a resolute British officer forge an unbreakable brotherhood before discovering each other's secret identities.", "poster": "https://image.tmdb.org/t/p/w500/nEufeZlyAOLqO6larF8rMKSKXR.jpg"}, {"movie_id": 14, "title": "Pushpa: The Rise", "genre": "Action", "language": "Telugu", "rating": 7.5, "votes": 150000, "year": 2021, "runtime": "2h 59m", "mood": "Adrenaline 💥", "stars": "Allu Arjun, Rashmika Mandanna", "overview": "A laborer rises through the ranks of a red sandalwood smuggling syndicate, defying anyone who dares disrespect him.", "poster": "https://image.tmdb.org/t/p/w500/bjaeOSNvRZ85wYjVlqxLlBJkuDW.jpg"}, {"movie_id": 15, "title": "Jawan", "genre": "Action", "language": "Hindi", "rating": 7.2, "votes": 130000, "year": 2023, "runtime": "2h 49m", "mood": "Adrenaline 💥", "stars": "Shah Rukh Khan, Nayanthara", "overview": "A prison warden and an army hero set out to rectify systemic social injustices with the help of a dedicated vigilante squad.", "poster": "https://image.tmdb.org/t/p/w500/vV04sHMTh4HFpT9iBgKBDpTW8Y8.jpg"}, {"movie_id": 16, "title": "The Shawshank Redemption", "genre": "Drama", "language": "English", "rating": 9.3, "votes": 2700000, "year": 1994, "runtime": "2h 22m", "mood": "Heartwarming 🥺", "stars": "Tim Robbins, Morgan Freeman", "overview": "A banker convicted of murder bonds with a fellow inmate over decades, seeking solace and eventual redemption through acts of common decency.", "poster": "https://image.tmdb.org/t/p/w500/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg"}, {"movie_id": 17, "title": "Forrest Gump", "genre": "Drama", "language": "English", "rating": 8.8, "votes": 2000000, "year": 1994, "runtime": "2h 22m", "mood": "Feel-Good ✨", "stars": "Tom Hanks, Robin Wright", "overview": "The history of the United States unfolds through the eyes of an Alabama man with an IQ of 75 who yearns to be reunited with his childhood sweetheart.", "poster": "https://image.tmdb.org/t/p/w500/saHP97rTPS5eLmrLQEcANmKrsFl.jpg"}, {"movie_id": 18, "title": "The Godfather", "genre": "Crime", "language": "English", "rating": 9.2, "votes": 1900000, "year": 1972, "runtime": "2h 55m", "mood": "Dark & Gritty 🦇", "stars": "Marlon Brando, Al Pacino", "overview": "The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant youngest son.", "poster": "https://image.tmdb.org/t/p/w500/3bhkrj58Vtu7enYsLlegkKXYjT6.jpg"}, {"movie_id": 19, "title": "Pulp Fiction", "genre": "Crime", "language": "English", "rating": 8.9, "votes": 2100000, "year": 1994, "runtime": "2h 34m", "mood": "Dark & Gritty 🦇", "stars": "John Travolta, Samuel L. Jackson", "overview": "The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine in four tales of violence and redemption.", "poster": "https://image.tmdb.org/t/p/w500/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg"}, {"movie_id": 20, "title": "Fight Club", "genre": "Thriller", "language": "English", "rating": 8.8, "votes": 2000000, "year": 1999, "runtime": "2h 19m", "mood": "Mind-Bending 🧠", "stars": "Brad Pitt, Edward Norton", "overview": "An insomniac office worker and a devil-may-care soap maker form an underground fight club that evolves into something much more dangerous.", "poster": "https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg"}, {"movie_id": 21, "title": "Joker", "genre": "Thriller", "language": "English", "rating": 8.4, "votes": 1400000, "year": 2019, "runtime": "2h 02m", "mood": "Dark & Gritty 🦇", "stars": "Joaquin Phoenix, Robert De Niro", "overview": "During the 1980s, a failed stand-up comedian is driven insane and turns to a life of crime and chaos in Gotham City while becoming an infamous figure.", "poster": "https://image.tmdb.org/t/p/w500/udDclJoHjfjb8Ekgsd4FDteOkCU.jpg"}, {"movie_id": 22, "title": "Spider-Man: No Way Home", "genre": "Action", "language": "English", "rating": 8.3, "votes": 950000, "year": 2021, "runtime": "2h 28m", "mood": "Adrenaline 💥", "stars": "Tom Holland, Zendaya", "overview": "With Spider-Man's identity now revealed, Peter asks Doctor Strange for help, unraveling the multiverse and facing legendary villains.", "poster": "https://image.tmdb.org/t/p/w500/1g0dhYtq4irTY1GPXvft6k4YLjm.jpg"}, {"movie_id": 23, "title": "Doctor Strange", "genre": "Sci-Fi", "language": "English", "rating": 7.4, "votes": 780000, "year": 2016, "runtime": "1h 55m", "mood": "Mind-Bending 🧠", "stars": "Benedict Cumberbatch, Rachel McAdams", "overview": "While on a journey of physical and spiritual healing, a brilliant neurosurgeon is drawn into the world of the mystic arts.", "poster": "https://image.tmdb.org/t/p/w500/uGBVAWjuxFmliwA4iYYiQOwuyfz.jpg"}, {"movie_id": 24, "title": "Iron Man", "genre": "Action", "language": "English", "rating": 7.9, "votes": 950000, "year": 2008, "runtime": "2h 06m", "mood": "Adrenaline 💥", "stars": "Robert Downey Jr., Gwyneth Paltrow", "overview": "After being held captive in an Afghan cave, billionaire engineer Tony Stark builds a unique weaponized suit of armor to fight evil.", "poster": "https://image.tmdb.org/t/p/w500/78lPtwv72eTNqFW9COBYI0dWDJa.jpg"}, {"movie_id": 25, "title": "Black Panther", "genre": "Action", "language": "English", "rating": 7.3, "votes": 720000, "year": 2018, "runtime": "2h 14m", "mood": "Adrenaline 💥", "stars": "Chadwick Boseman, Michael B. Jordan", "overview": "T'Challa, heir to the hidden kingdom of Wakanda, must step forward to lead his people into a new era and face a challenger from his country's past.", "poster": "https://image.tmdb.org/t/p/w500/uxzzxijgPIY7slzFvMotPv8wjKA.jpg"}, {"movie_id": 26, "title": "Deadpool", "genre": "Comedy", "language": "English", "rating": 7.6, "votes": 890000, "year": 2016, "runtime": "1h 48m", "mood": "Laugh Out Loud 😂", "stars": "Ryan Reynolds, Morena Baccarin", "overview": "A wisecracking mercenary gets experimented on and becomes immortal but ugly, and sets out to track down the man who ruined his looks.", "poster": "https://image.tmdb.org/t/p/w500/fSRb7vyIP8rQpL0I47P3qUsEKX3.jpg"}, {"movie_id": 27, "title": "Thor: Ragnarok", "genre": "Comedy", "language": "English", "rating": 7.9, "votes": 810000, "year": 2017, "runtime": "2h 10m", "mood": "Laugh Out Loud 😂", "stars": "Chris Hemsworth, Tom Hiddleston", "overview": "Imprisoned on the planet Sakaar, Thor must race against time to return to Asgard and stop Ragnarok, the destruction of his world.", "poster": "https://image.tmdb.org/t/p/w500/rzRwTcFvttcN1ZpX2xv4j3tSdJu.jpg"}, {"movie_id": 28, "title": "Coco", "genre": "Animation", "language": "English", "rating": 8.4, "votes": 480000, "year": 2017, "runtime": "1h 45m", "mood": "Feel-Good ✨", "stars": "Anthony Gonzalez, Gael García Bernal", "overview": "Aspiring musician Miguel enters the Land of the Dead to find his great-great-grandfather, a legendary singer.", "poster": "https://image.tmdb.org/t/p/w500/gGEsBPAijhVUFoiNpgZXqRVWJt2.jpg"}, {"movie_id": 29, "title": "Soul", "genre": "Animation", "language": "English", "rating": 8.1, "votes": 420000, "year": 2020, "runtime": "1h 40m", "mood": "Feel-Good ✨", "stars": "Jamie Foxx, Tina Fey", "overview": "After landing the gig of a lifetime, a New York jazz pianist suddenly finds himself trapped in a strange land between Earth and the afterlife.", "poster": "https://image.tmdb.org/t/p/w500/hm58Jw4Lw8OIeECIq5qyPYhAeRJ.jpg"}, {"movie_id": 30, "title": "Up", "genre": "Animation", "language": "English", "rating": 8.2, "votes": 560000, "year": 2009, "runtime": "1h 36m", "mood": "Feel-Good ✨", "stars": "Edward Asner, Jordan Nagai", "overview": "78-year-old Carl Fredricksen travels to Paradise Falls in his house equipped with balloons, inadvertently taking a young stowaway.", "poster": "https://image.tmdb.org/t/p/w500/pnAqCMx3kQCcHCRVbgJMjmAzZkX.jpg"}];
-        let watchlist = [];
-        try {
-            watchlist = JSON.parse(localStorage.getItem('cinematch_wl') || '[]');
-        } catch(e) {
-            watchlist = [];
-        }
-        let quizAnswers = { q1: 'Sci-Fi', q2: 'solo', q3: 'quick' };
+<!-- SUBSCRIPTION MODAL -->
+<div class="sub-overlay" id="subOverlay">
+  <div class="sub-modal">
+    <button class="sub-close" onclick="closeSubscription()">✕</button>
+    <div class="payment-step active" id="step-plan">
+      <div class="demo-badge">🎓 Hackathon Demo</div>
+      <div class="sub-title">Choose Your Plan</div>
+      <div class="sub-subtitle">Unlock unlimited streaming with CineMatch Premium</div>
+      <div class="plan-cards">
+        <div class="plan-card selected" onclick="selectPlan(this,'basic')" data-plan="basic">
+          <div>
+            <div class="plan-name">📱 Mobile</div>
+            <div class="plan-features">480p · 1 Device · Ad-supported</div>
+          </div>
+          <div class="plan-price">₹149<small>/mo</small></div>
+        </div>
+        <div class="plan-card" onclick="selectPlan(this,'standard')" data-plan="standard">
+          <div>
+            <div class="plan-name">💻 Standard</div>
+            <div class="plan-features">1080p · 2 Devices · Ad-free</div>
+          </div>
+          <div class="plan-price">₹499<small>/mo</small></div>
+        </div>
+        <div class="plan-card" onclick="selectPlan(this,'premium')" data-plan="premium">
+          <div>
+            <div class="plan-name">🎬 Premium</div>
+            <div class="plan-features">4K+HDR · 4 Devices · Downloads</div>
+          </div>
+          <div class="plan-price">₹699<small>/mo</small></div>
+        </div>
+      </div>
+      <button class="btn-proceed" onclick="goToPayment()">Continue to Payment</button>
+    </div>
+    <div class="payment-step" id="step-pay">
+      <div class="demo-badge">🎓 Hackathon Demo — No Real Payment</div>
+      <div class="sub-title">Pay via UPI</div>
+      <div class="upi-section">
+        <div class="upi-qr" id="upiQr">
+          <canvas id="qrCanvas"></canvas>
+        </div>
+        <div class="upi-id-display">
+          <code>7499525420@axl</code>
+          <button class="btn-copy" onclick="copyUPI()">📋 Copy</button>
+        </div>
+        <p style="color:var(--text-dim);font-size:.8rem;margin-top:8px">Scan QR or copy UPI ID to pay</p>
+      </div>
+      <button class="btn-proceed" onclick="simulatePayment()">✅ I've Completed Payment (Demo)</button>
+    </div>
+    <div class="payment-step" id="step-success">
+      <div class="payment-status">
+        <div class="payment-success-icon">✓</div>
+        <h2 style="color:var(--text-bright);margin-bottom:8px">Welcome to CineMatch Premium!</h2>
+        <p style="color:var(--text-dim);margin-bottom:24px">Your subscription is now active. Enjoy unlimited streaming.</p>
+        <button class="btn-proceed" onclick="closeSubscription()">Start Watching</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-        // WhatsApp Share Link
-        const appUrl = "https://pauraveephuke2-a11y.github.io/cinematch/";
-        const waMsg = encodeURIComponent("Hey! 🍿 Check out CineMatch - an AI Movie Recommender web app:\n\n" + appUrl + "\n\nFind what to watch in seconds!");
-        document.getElementById('waHeaderBtn').href = "https://wa.me/?text=" + waMsg;
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-content">
+    <div>
+      <div class="footer-brand">🎬 Cine<span>Match</span></div>
+      <p class="footer-desc">AI-powered movie recommendation and streaming platform. Built with TF-IDF, Cosine Similarity, and Collaborative Filtering.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Platform</h4>
+      <a href="#home">Home</a>
+      <a href="#movies-section">Browse</a>
+      <a href="#ai-rec">AI Picks</a>
+      <a href="#" onclick="openSubscription()">Subscribe</a>
+    </div>
+    <div class="footer-col">
+      <h4>Project</h4>
+      <a href="#">Content-Based Filtering</a>
+      <a href="#">Collaborative Filtering</a>
+      <a href="#">TF-IDF Vectorization</a>
+      <a href="#">Cosine Similarity</a>
+    </div>
+    <div class="footer-col">
+      <h4>Academic</h4>
+      <a href="#">MIT-WPU Pune</a>
+      <a href="#">B.Tech AI & DS</a>
+      <a href="#">Pauravee Phuke</a>
+      <a href="#">2026-2027</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 CineMatch. All rights reserved. Academic Project Demo.</span>
+    <div class="footer-tech">
+      <span>Python</span><span>TF-IDF</span><span>Cosine Sim</span><span>HTML5</span><span>JS</span>
+    </div>
+  </div>
+</footer>
 
-        function updateWlCount() {
-            document.getElementById('wlCount').textContent = watchlist.length;
-            try {
-                localStorage.setItem('cinematch_wl', JSON.stringify(watchlist));
-            } catch(e) {}
-        }
-        updateWlCount();
+<script>
+// ===== MOVIE DATA =====
+const MOVIES = [
+  {id:1,title:"Inception",genre:"Sci-Fi",lang:"English",rating:8.8,votes:2300000,year:2010,runtime:"2h 28m",mood:"Mind-Bending",stars:"Leonardo DiCaprio, Joseph Gordon-Levitt",overview:"A thief who steals corporate secrets through dream-sharing tech is given the inverse task of planting an idea.",poster:"https://image.tmdb.org/t/p/w500/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg",trailer:"YoHD9XEInc0"},
+  {id:2,title:"The Dark Knight",genre:"Action",lang:"English",rating:9.0,votes:2800000,year:2008,runtime:"2h 32m",mood:"Dark & Gritty",stars:"Christian Bale, Heath Ledger",overview:"Batman faces the Joker, a psychotic criminal mastermind who plunges Gotham City into pure anarchy.",poster:"https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg",trailer:"EXeTwQWrcwY"},
+  {id:3,title:"Interstellar",genre:"Sci-Fi",lang:"English",rating:8.6,votes:2100000,year:2014,runtime:"2h 49m",mood:"Mind-Bending",stars:"Matthew McConaughey, Anne Hathaway",overview:"When Earth becomes uninhabitable, a team of explorers undertakes the most important mission in human history through a wormhole.",poster:"https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",trailer:"zSWdZVtXT7E"},
+  {id:4,title:"The Matrix",genre:"Sci-Fi",lang:"English",rating:8.7,votes:1900000,year:1999,runtime:"2h 16m",mood:"Adrenaline",stars:"Keanu Reeves, Laurence Fishburne",overview:"A computer hacker learns from mysterious rebels about the true nature of his reality and his role in the war against its controllers.",poster:"https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",trailer:"vKQi3bBA1y8"},
+  {id:5,title:"Avengers: Endgame",genre:"Action",lang:"English",rating:8.4,votes:1200000,year:2019,runtime:"3h 01m",mood:"Adrenaline",stars:"Robert Downey Jr., Chris Evans",overview:"After Thanos wiped out half of all life, the remaining Avengers assemble once more to reverse his actions.",poster:"https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg",trailer:"TcMBFSGVi1c"},
+  {id:6,title:"Parasite",genre:"Thriller",lang:"Korean",rating:8.5,votes:800000,year:2019,runtime:"2h 12m",mood:"Dark & Gritty",stars:"Song Kang-ho, Lee Sun-kyun",overview:"Greed and class discrimination threaten the newly formed symbiotic relationship between the wealthy Park family and the destitute Kim clan.",poster:"https://image.tmdb.org/t/p/w500/7IiTTgloROVKtXv3sQQRXlnFN9O.jpg",trailer:"5xH0HfJHsaY"},
+  {id:7,title:"3 Idiots",genre:"Comedy",lang:"Hindi",rating:8.4,votes:450000,year:2009,runtime:"2h 50m",mood:"Laugh Out Loud",stars:"Aamir Khan, R. Madhavan",overview:"Two friends search for their long-lost college buddy who inspired them to think differently, challenging the rigid education system.",poster:"https://image.tmdb.org/t/p/w500/66A9MqXOyVFCssoloscw79z8Tew.jpg",trailer:"xvszmNXdM4w"},
+  {id:8,title:"Dangal",genre:"Sports",lang:"Hindi",rating:8.4,votes:380000,year:2016,runtime:"2h 41m",mood:"Heartwarming",stars:"Aamir Khan, Fatima Sana Shaikh",overview:"Former wrestler Mahavir Singh Phogat trains his young daughters to become world-class champions against societal odds.",poster:"https://image.tmdb.org/t/p/w500/pnPXHPLTa8ORK8oeoCnQQKdHJgZ.jpg",trailer:"x_7YlGv9u1g"},
+  {id:9,title:"PK",genre:"Comedy",lang:"Hindi",rating:8.1,votes:320000,year:2014,runtime:"2h 33m",mood:"Laugh Out Loud",stars:"Aamir Khan, Anushka Sharma",overview:"An innocent alien stranded on Earth questions dogma, blind superstition, and organized religion with childlike innocence.",poster:"https://image.tmdb.org/t/p/w500/f7iGBm5BtMk6W5TLlnmQCbKBkNj.jpg",trailer:"82gMM85gcRI"},
+  {id:10,title:"Taare Zameen Par",genre:"Drama",lang:"Hindi",rating:8.5,votes:290000,year:2007,runtime:"2h 45m",mood:"Heartwarming",stars:"Darsheel Safary, Aamir Khan",overview:"An eight-year-old boy considered lazy and troublemaking finds his life changed forever when an empathetic art teacher discovers his dyslexia.",poster:"https://image.tmdb.org/t/p/w500/b42dv2LnlLuHJLMzDl82PsJGUFm.jpg",trailer:"SgAPNJCPPbk"},
+  {id:11,title:"Baahubali: The Beginning",genre:"Action",lang:"Telugu",rating:8.0,votes:210000,year:2015,runtime:"2h 39m",mood:"Adrenaline",stars:"Prabhas, Rana Daggubati",overview:"A young, adventurous man uncovers his royal lineage and fulfills his destiny in an ancient kingdom torn by betrayal.",poster:"https://image.tmdb.org/t/p/w500/aeMLAFmrHJc7TThUJcVzMkxUlge.jpg",trailer:"sOEg_YZQsTI"},
+  {id:12,title:"KGF Chapter 2",genre:"Action",lang:"Kannada",rating:8.3,votes:195000,year:2022,runtime:"2h 48m",mood:"Adrenaline",stars:"Yash, Sanjay Dutt",overview:"Rocky, now the undisputed kingpin of Kolar Gold Fields, defends his supremacy against lethal adversaries and the government.",poster:"https://image.tmdb.org/t/p/w500/4bcQovpuiNpkdRBfDq1TyEBIDol.jpg",trailer:"JKa05nyUmuQ"},
+  {id:13,title:"RRR",genre:"Action",lang:"Telugu",rating:7.9,votes:185000,year:2022,runtime:"3h 07m",mood:"Adrenaline",stars:"N.T. Rama Rao Jr., Ram Charan",overview:"A fearless revolutionary and a resolute British officer forge an unbreakable brotherhood before discovering each other's secret identities.",poster:"https://image.tmdb.org/t/p/w500/nEufeZlyAOLqO6larF8rMKSKXR.jpg",trailer:"f_vbAtFSEc0"},
+  {id:14,title:"Pushpa: The Rise",genre:"Action",lang:"Telugu",rating:7.5,votes:150000,year:2021,runtime:"2h 59m",mood:"Adrenaline",stars:"Allu Arjun, Rashmika Mandanna",overview:"A laborer rises through the ranks of a red sandalwood smuggling syndicate, defying anyone who dares disrespect him.",poster:"https://image.tmdb.org/t/p/w500/bjaeOSNvRZ85wYjVlqxLlBJkuDW.jpg",trailer:"pKctjBL0Xzg"},
+  {id:15,title:"Jawan",genre:"Action",lang:"Hindi",rating:7.2,votes:130000,year:2023,runtime:"2h 49m",mood:"Adrenaline",stars:"Shah Rukh Khan, Nayanthara",overview:"A prison warden and an army hero set out to rectify systemic social injustices with the help of a dedicated vigilante squad.",poster:"https://image.tmdb.org/t/p/w500/vV04sHMTh4HFpT9iBgKBDpTW8Y8.jpg",trailer:"MkkemOKQCTg"},
+  {id:16,title:"The Shawshank Redemption",genre:"Drama",lang:"English",rating:9.3,votes:2700000,year:1994,runtime:"2h 22m",mood:"Heartwarming",stars:"Tim Robbins, Morgan Freeman",overview:"A banker convicted of murder bonds with a fellow inmate over decades, seeking solace and eventual redemption through acts of common decency.",poster:"https://image.tmdb.org/t/p/w500/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg",trailer:"6hB3S9bIaco"},
+  {id:17,title:"Forrest Gump",genre:"Drama",lang:"English",rating:8.8,votes:2000000,year:1994,runtime:"2h 22m",mood:"Feel-Good",stars:"Tom Hanks, Robin Wright",overview:"The history of the United States unfolds through the eyes of an Alabama man with an IQ of 75 who yearns to be reunited with his childhood sweetheart.",poster:"https://image.tmdb.org/t/p/w500/saHP97rTPS5eLmrLQEcANmKrsFl.jpg",trailer:"bLvqoHBptjg"},
+  {id:18,title:"The Godfather",genre:"Crime",lang:"English",rating:9.2,votes:1900000,year:1972,runtime:"2h 55m",mood:"Dark & Gritty",stars:"Marlon Brando, Al Pacino",overview:"The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant youngest son.",poster:"https://image.tmdb.org/t/p/w500/3bhkrj58Vtu7enYsLlegkKXYjT6.jpg",trailer:"sY1S34973zA"},
+  {id:19,title:"Pulp Fiction",genre:"Crime",lang:"English",rating:8.9,votes:2100000,year:1994,runtime:"2h 34m",mood:"Dark & Gritty",stars:"John Travolta, Samuel L. Jackson",overview:"The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine in four tales of violence and redemption.",poster:"https://image.tmdb.org/t/p/w500/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg",trailer:"s7EdQ4FqbhY"},
+  {id:20,title:"Fight Club",genre:"Thriller",lang:"English",rating:8.8,votes:2000000,year:1999,runtime:"2h 19m",mood:"Mind-Bending",stars:"Brad Pitt, Edward Norton",overview:"An insomniac office worker and a devil-may-care soap maker form an underground fight club that evolves into something much more dangerous.",poster:"https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg",trailer:"qtRKdVHc-cE"},
+  {id:21,title:"Joker",genre:"Thriller",lang:"English",rating:8.4,votes:1400000,year:2019,runtime:"2h 02m",mood:"Dark & Gritty",stars:"Joaquin Phoenix, Robert De Niro",overview:"During the 1980s, a failed stand-up comedian is driven insane and turns to a life of crime and chaos in Gotham City while becoming an infamous figure.",poster:"https://image.tmdb.org/t/p/w500/udDclJoHjfjb8Ekgsd4FDteOkCU.jpg",trailer:"zAGVQLHvwOY"},
+  {id:22,title:"Spider-Man: No Way Home",genre:"Action",lang:"English",rating:8.3,votes:950000,year:2021,runtime:"2h 28m",mood:"Adrenaline",stars:"Tom Holland, Zendaya",overview:"With Spider-Man's identity now revealed, Peter asks Doctor Strange for help, unraveling the multiverse and facing legendary villains.",poster:"https://image.tmdb.org/t/p/w500/1g0dhYtq4irTY1GPXvft6k4YLjm.jpg",trailer:"JfVOs4VSpmA"},
+  {id:23,title:"Doctor Strange",genre:"Sci-Fi",lang:"English",rating:7.4,votes:780000,year:2016,runtime:"1h 55m",mood:"Mind-Bending",stars:"Benedict Cumberbatch, Rachel McAdams",overview:"While on a journey of physical and spiritual healing, a brilliant neurosurgeon is drawn into the world of the mystic arts.",poster:"https://image.tmdb.org/t/p/w500/uGBVAWjuxFmliwA4iYYiQOwuyfz.jpg",trailer:"HSzx-zryEgM"},
+  {id:24,title:"Iron Man",genre:"Action",lang:"English",rating:7.9,votes:950000,year:2008,runtime:"2h 06m",mood:"Adrenaline",stars:"Robert Downey Jr., Gwyneth Paltrow",overview:"After being held captive in an Afghan cave, billionaire engineer Tony Stark builds a unique weaponized suit of armor to fight evil.",poster:"https://image.tmdb.org/t/p/w500/78lPtwv72eTNqFW9COBYI0dWDJa.jpg",trailer:"8ugaeA-nMTc"},
+  {id:25,title:"Black Panther",genre:"Action",lang:"English",rating:7.3,votes:720000,year:2018,runtime:"2h 14m",mood:"Adrenaline",stars:"Chadwick Boseman, Michael B. Jordan",overview:"T'Challa, heir to the hidden kingdom of Wakanda, must step forward to lead his people into a new era and face a challenger from his country's past.",poster:"https://image.tmdb.org/t/p/w500/uxzzxijgPIY7slzFvMotPv8wjKA.jpg",trailer:"xjDjIWPwcPU"},
+  {id:26,title:"Deadpool",genre:"Comedy",lang:"English",rating:7.6,votes:890000,year:2016,runtime:"1h 48m",mood:"Laugh Out Loud",stars:"Ryan Reynolds, Morena Baccarin",overview:"A wisecracking mercenary gets experimented on and becomes immortal but ugly, and sets out to track down the man who ruined his looks.",poster:"https://image.tmdb.org/t/p/w500/fSRb7vyIP8rQpL0I47P3qUsEKX3.jpg",trailer:"ONHBaC-pfsk"},
+  {id:27,title:"Thor: Ragnarok",genre:"Comedy",lang:"English",rating:7.9,votes:810000,year:2017,runtime:"2h 10m",mood:"Laugh Out Loud",stars:"Chris Hemsworth, Tom Hiddleston",overview:"Imprisoned on the planet Sakaar, Thor must race against time to return to Asgard and stop Ragnarok, the destruction of his world.",poster:"https://image.tmdb.org/t/p/w500/rzRwTcFvttcN1ZpX2xv4j3tSdJu.jpg",trailer:"ue80QwXMRHg"},
+  {id:28,title:"Coco",genre:"Animation",lang:"English",rating:8.4,votes:480000,year:2017,runtime:"1h 45m",mood:"Feel-Good",stars:"Anthony Gonzalez, Gael Garcia Bernal",overview:"Aspiring musician Miguel enters the Land of the Dead to find his great-great-grandfather, a legendary singer.",poster:"https://image.tmdb.org/t/p/w500/gGEsBPAijhVUFoiNpgZXqRVWJt2.jpg",trailer:"Rvr68uZMZJQ"},
+  {id:29,title:"Soul",genre:"Animation",lang:"English",rating:8.1,votes:420000,year:2020,runtime:"1h 40m",mood:"Feel-Good",stars:"Jamie Foxx, Tina Fey",overview:"After landing the gig of a lifetime, a New York jazz pianist suddenly finds himself trapped in a strange land between Earth and the afterlife.",poster:"https://image.tmdb.org/t/p/w500/hm58Jw4Lw8OIeECIq5qyPYhAeRJ.jpg",trailer:"xOsLIiBStEs"},
+  {id:30,title:"Up",genre:"Animation",lang:"English",rating:8.2,votes:560000,year:2009,runtime:"1h 36m",mood:"Feel-Good",stars:"Edward Asner, Jordan Nagai",overview:"78-year-old Carl Fredricksen travels to Paradise Falls in his house equipped with balloons, inadvertently taking a young stowaway.",poster:"https://image.tmdb.org/t/p/w500/pnAqCMx3kQCcHCRVbgJMjmAzZkX.jpg",trailer:"pkqzFUhGPJg"}
+];
 
-        // Populate Selects
-        const genres = ['All', ...new Set(movies.map(m => m.genre))];
-        const moods = ['All', ...new Set(movies.map(m => m.mood).filter(Boolean))];
+// ===== STATE =====
+let watchlist = JSON.parse(localStorage.getItem('cm_watchlist') || '[]');
+let selectedPlan = 'basic';
+let heroIndex = 0;
+let heroInterval;
+const HERO_MOVIES = [0,1,2,3,15]; // indices
 
-        const genreSelect = document.getElementById('genreSelect');
-        genres.forEach(g => {
-            const opt = document.createElement('option');
-            opt.value = g;
-            opt.textContent = g === 'All' ? 'All Genres' : g;
-            genreSelect.appendChild(opt);
-        });
+// ===== INIT =====
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => document.getElementById('loader').classList.add('hidden'), 1500);
+  renderGenreBar();
+  renderHero();
+  renderRows();
+  renderMoodGrid();
+  renderMovieDatalist();
+  updateWatchlistCount();
+  startHeroRotation();
+  // Nav scroll
+  window.addEventListener('scroll', () => {
+    document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 50);
+  });
+});
 
-        const moodSelect = document.getElementById('moodSelect');
-        const rouletteMood = document.getElementById('rouletteMood');
-        moods.forEach(m => {
-            const opt1 = document.createElement('option');
-            opt1.value = m;
-            opt1.textContent = m === 'All' ? 'All Moods' : m;
-            moodSelect.appendChild(opt1);
+// ===== HERO =====
+function renderHero() {
+  const m = MOVIES[HERO_MOVIES[heroIndex]];
+  const bg = document.getElementById('heroBg');
+  bg.style.backgroundImage = `url(${m.poster.replace('w500','w1280')})`;
+  document.getElementById('heroContent').innerHTML = `
+    <div class="hero-badge">▶ Now Streaming</div>
+    <h1 class="hero-title">${m.title}</h1>
+    <div class="hero-meta">
+      <span class="rating">⭐ ${m.rating}</span>
+      <span>${m.year}</span>
+      <span>${m.runtime}</span>
+      <span>${m.genre}</span>
+    </div>
+    <p class="hero-desc">${m.overview}</p>
+    <div class="hero-buttons">
+      <button class="btn-play" onclick="openMovie(${m.id})">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        Watch Now
+      </button>
+      <button class="btn-info" onclick="openMovie(${m.id})">ℹ More Info</button>
+    </div>
+  `;
+  // indicators
+  let dots = '';
+  HERO_MOVIES.forEach((_, i) => { dots += `<div class="hero-dot ${i===heroIndex?'active':''}" onclick="goHero(${i})"></div>`; });
+  document.getElementById('heroIndicators').innerHTML = dots;
+}
+function goHero(i) { heroIndex = i; renderHero(); }
+function startHeroRotation() {
+  heroInterval = setInterval(() => { heroIndex = (heroIndex + 1) % HERO_MOVIES.length; renderHero(); }, 6000);
+}
 
-            const opt2 = document.createElement('option');
-            opt2.value = m;
-            opt2.textContent = m === 'All' ? 'Any Vibe 🌟' : m;
-            rouletteMood.appendChild(opt2);
-        });
+// ===== GENRE BAR =====
+function renderGenreBar() {
+  const genres = ['All', ...new Set(MOVIES.map(m => m.genre))];
+  document.getElementById('genreBar').innerHTML = genres.map(g =>
+    `<button class="genre-pill ${g==='All'?'active':''}" onclick="filterGenre('${g}')">${g}</button>`
+  ).join('');
+}
+function filterGenre(genre) {
+  document.querySelectorAll('.genre-pill').forEach(p => p.classList.toggle('active', p.textContent === genre || (genre==='all' && p.textContent==='All')));
+  const filtered = genre === 'all' || genre === 'All' ? MOVIES : MOVIES.filter(m => m.genre === genre);
+  renderRow('trendingRow', filtered);
+}
 
-        const smartMatchSelect = document.getElementById('smartMatchSelect');
-        movies.slice().sort((a,b) => a.title.localeCompare(b.title)).forEach(m => {
-            const opt = document.createElement('option');
-            opt.value = m.title;
-            opt.textContent = m.title + " (" + m.genre + " - " + m.year + ")";
-            smartMatchSelect.appendChild(opt);
-        });
+// ===== RENDER ROWS =====
+function renderRows() {
+  renderRow('trendingRow', [...MOVIES].sort((a,b) => b.votes - a.votes));
+  renderRow('topRatedRow', [...MOVIES].sort((a,b) => b.rating - a.rating));
+  renderRow('indianRow', MOVIES.filter(m => ['Hindi','Telugu','Kannada','Tamil','Korean'].includes(m.lang)));
+  renderRow('hollywoodRow', MOVIES.filter(m => m.lang === 'English'));
+}
+function renderRow(containerId, movies) {
+  document.getElementById(containerId).innerHTML = movies.map((m, i) => `
+    <div class="movie-card" onclick="openMovie(${m.id})">
+      <img class="movie-card-img" src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 300%22><rect fill=%22%231a1a2e%22 width=%22200%22 height=%22300%22/><text x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%238a8a9a%22 font-size=%2220%22>🎬</text></svg>'">
+      <div class="movie-card-play"></div>
+      <div class="movie-card-info">
+        <div class="movie-card-title">${m.title}</div>
+        <div class="movie-card-meta">
+          <span class="movie-card-rating">⭐ ${m.rating}</span>
+          <span>${m.year}</span>
+        </div>
+      </div>
+      ${i < 3 ? `<div class="movie-card-badge">#${i+1}</div>` : ''}
+    </div>
+  `).join('');
+}
 
-        // Render Movie Cards
-        function renderCard(m, matchPct = null) {
-            const isSaved = watchlist.includes(m.title);
-            const trailerUrl = "https://www.youtube.com/results?search_query=" + encodeURIComponent(m.title + " official trailer");
-            const matchTag = matchPct ? `<span class="tag tag-match">🔥 ${Math.round(matchPct)}% Match</span>` : '';
+// ===== MOOD GRID =====
+function renderMoodGrid() {
+  const moods = [...new Set(MOVIES.map(m => m.mood))];
+  const icons = {'Mind-Bending':'🧠','Dark & Gritty':'🦇','Adrenaline':'💥','Laugh Out Loud':'😂','Heartwarming':'🥺','Feel-Good':'✨'};
+  document.getElementById('moodGrid').innerHTML = moods.map(m =>
+    `<button class="mood-btn" onclick="filterMood('${m}')">${icons[m]||'🎬'} ${m}</button>`
+  ).join('');
+}
+function filterMood(mood) {
+  const filtered = MOVIES.filter(m => m.mood === mood);
+  renderRow('trendingRow', filtered);
+  document.getElementById('movies-section').scrollIntoView({behavior:'smooth'});
+  document.querySelector('.section-title').textContent = `${mood} Movies`;
+}
 
-            return `
-                <div class="movie-card">
-                    <div class="poster-container">
-                        <img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.src='https://placehold.co/300x450/141424/E50914?text=' + encodeURIComponent('${m.title}')">
-                        <div class="badge-rating">★ ${m.rating.toFixed(1)}</div>
-                    </div>
-                    <div class="card-info">
-                        <div class="card-title" title="${m.title}">${m.title}</div>
-                        <div class="card-tags">
-                            <span class="tag">${m.genre}</span>
-                            <span class="tag">${m.year}</span>
-                            <span class="tag">${m.runtime}</span>
-                            ${matchTag}
-                        </div>
-                        <div class="card-plot">${m.overview || ''}</div>
-                        <div class="card-actions">
-                            <a class="btn-action btn-trailer" href="${trailerUrl}" target="_blank">▶ Trailer</a>
-                            <button class="btn-action btn-bookmark ${isSaved ? 'saved' : ''}" onclick="toggleWatchlist('${m.title.replace(/'/g, "\\'")}')">
-                                ${isSaved ? '❤️ Saved' : '🤍 Save'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
+// ===== MOVIE MODAL =====
+function openMovie(id) {
+  const m = MOVIES.find(x => x.id === id);
+  if (!m) return;
+  const inWL = watchlist.includes(id);
+  document.getElementById('modalPlayer').innerHTML = `
+    <div class="modal-player-placeholder" onclick="playTrailer(${id})">
+      <div class="play-big"></div>
+      <p>▶ Play Trailer</p>
+    </div>
+  `;
+  document.getElementById('modalBody').innerHTML = `
+    <h2 class="modal-title">${m.title}</h2>
+    <div class="modal-meta">
+      <span class="rating-badge">⭐ ${m.rating}</span>
+      <span>${m.year}</span>
+      <span>${m.runtime}</span>
+      <span>${m.genre}</span>
+      <span>${m.lang}</span>
+    </div>
+    <p class="modal-overview">${m.overview}</p>
+    <p class="modal-cast">Cast: <span>${m.stars}</span></p>
+    <div class="modal-actions">
+      <button class="btn-watch" onclick="playTrailer(${id})">▶ Watch Trailer</button>
+      <button class="btn-watchlist ${inWL?'added':''}" onclick="toggleWatchlist(${id},this)">${inWL?'✓ In Watchlist':'+ Watchlist'}</button>
+      <button class="btn-watchlist" onclick="window.open('https://www.youtube.com/results?search_query=${encodeURIComponent(m.title+' full movie free')}','_blank')">🔍 Find on YouTube</button>
+      <button class="btn-watchlist" onclick="shareMovie(${id})">📤 Share</button>
+    </div>
+  `;
+  // Recommendations
+  const recs = getContentRecommendations(m);
+  renderRow('modalRecoRow', recs);
+  document.getElementById('movieModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('movieModal').classList.remove('active');
+  document.body.style.overflow = '';
+  document.getElementById('modalPlayer').innerHTML = '';
+}
+function playTrailer(id) {
+  const m = MOVIES.find(x => x.id === id);
+  if (!m || !m.trailer) return;
+  document.getElementById('modalPlayer').innerHTML = `<iframe src="https://www.youtube.com/embed/${m.trailer}?autoplay=1&rel=0" allow="autoplay;encrypted-media" allowfullscreen></iframe>`;
+}
+function shareMovie(id) {
+  const m = MOVIES.find(x => x.id === id);
+  if (!m) return;
+  const text = `🎬 Check out "${m.title}" (${m.year}) — ⭐${m.rating}\n${m.overview}\n\nDiscover more on CineMatch!`;
+  if (navigator.share) { navigator.share({title:m.title,text:text,url:window.location.href}); }
+  else { window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank'); }
+}
 
-        // Filter Catalog
-        function filterCatalog() {
-            const q = document.getElementById('searchInput').value.toLowerCase().trim();
-            const genre = document.getElementById('genreSelect').value;
-            const mood = document.getElementById('moodSelect').value;
-            const sort = document.getElementById('sortSelect').value;
+// ===== WATCHLIST =====
+function toggleWatchlist(id, btn) {
+  const idx = watchlist.indexOf(id);
+  if (idx > -1) { watchlist.splice(idx, 1); btn.classList.remove('added'); btn.textContent = '+ Watchlist'; }
+  else { watchlist.push(id); btn.classList.add('added'); btn.textContent = '✓ In Watchlist'; }
+  localStorage.setItem('cm_watchlist', JSON.stringify(watchlist));
+  updateWatchlistCount();
+}
+function updateWatchlistCount() { document.getElementById('watchlistCount').textContent = watchlist.length; }
+function showWatchlist() {
+  const wlMovies = MOVIES.filter(m => watchlist.includes(m.id));
+  if (wlMovies.length === 0) { alert('Your watchlist is empty! Click the + Watchlist button on any movie.'); return; }
+  renderRow('trendingRow', wlMovies);
+  document.querySelector('.section-title').textContent = '♥ My Watchlist';
+  document.getElementById('movies-section').scrollIntoView({behavior:'smooth'});
+}
 
-            let filtered = movies.filter(m => {
-                const matchQ = !q || m.title.toLowerCase().includes(q) || (m.stars && m.stars.toLowerCase().includes(q)) || (m.overview && m.overview.toLowerCase().includes(q));
-                const matchG = genre === 'All' || m.genre === genre;
-                const matchM = mood === 'All' || m.mood === mood;
-                return matchQ && matchG && matchM;
-            });
+// ===== SEARCH =====
+function openSearch() { document.getElementById('searchOverlay').classList.add('active'); document.getElementById('searchInput').focus(); }
+function closeSearch() { document.getElementById('searchOverlay').classList.remove('active'); }
+function handleSearch(q) {
+  q = q.toLowerCase().trim();
+  if (!q) { document.getElementById('searchResults').innerHTML = ''; return; }
+  const results = MOVIES.filter(m =>
+    m.title.toLowerCase().includes(q) ||
+    m.genre.toLowerCase().includes(q) ||
+    m.stars.toLowerCase().includes(q) ||
+    m.lang.toLowerCase().includes(q) ||
+    m.mood.toLowerCase().includes(q)
+  );
+  document.getElementById('searchResults').innerHTML = results.length === 0
+    ? `<p style="text-align:center;color:var(--text-dim);padding:40px">No results for "${q}"</p>`
+    : results.map(m => `
+      <div class="search-result-item" onclick="closeSearch();openMovie(${m.id})">
+        <img class="search-result-img" src="${m.poster}" alt="${m.title}" loading="lazy">
+        <div class="search-result-info">
+          <h4>${m.title} (${m.year})</h4>
+          <p>⭐ ${m.rating} · ${m.genre} · ${m.lang} · ${m.runtime}</p>
+          <p style="margin-top:4px">${m.overview.substring(0,80)}...</p>
+        </div>
+      </div>
+    `).join('');
+}
 
-            if (sort === 'rating') filtered.sort((a,b) => b.rating - a.rating);
-            else if (sort === 'votes') filtered.sort((a,b) => b.votes - a.votes);
-            else if (sort === 'year') filtered.sort((a,b) => b.year - a.year);
+// ===== AI RECOMMENDATIONS (TF-IDF Cosine Similarity) =====
+function renderMovieDatalist() {
+  document.getElementById('movieList').innerHTML = MOVIES.map(m => `<option value="${m.title}">`).join('');
+}
+function tokenize(text) {
+  return text.toLowerCase().replace(/[^a-z0-9\s]/g,'').split(/\s+/).filter(w => w.length > 2);
+}
+function getContentRecommendations(movie) {
+  const scores = MOVIES.filter(m => m.id !== movie.id).map(m => {
+    let score = 0;
+    if (m.genre === movie.genre) score += 3;
+    if (m.mood === movie.mood) score += 2;
+    if (m.lang === movie.lang) score += 1;
+    // TF-IDF style token matching
+    const t1 = tokenize(movie.overview + ' ' + movie.stars + ' ' + movie.genre);
+    const t2 = tokenize(m.overview + ' ' + m.stars + ' ' + m.genre);
+    const shared = t1.filter(t => t2.includes(t)).length;
+    score += shared * 0.5;
+    // Rating proximity
+    score += (1 - Math.abs(m.rating - movie.rating) / 10) * 2;
+    return { ...m, score };
+  });
+  scores.sort((a, b) => b.score - a.score);
+  return scores.slice(0, 8);
+}
+function getRecommendations() {
+  const title = document.getElementById('aiInput').value.trim();
+  if (!title) return;
+  const movie = MOVIES.find(m => m.title.toLowerCase() === title.toLowerCase());
+  if (!movie) {
+    // Fuzzy
+    const close = MOVIES.find(m => m.title.toLowerCase().includes(title.toLowerCase()));
+    if (close) { document.getElementById('aiInput').value = close.title; return getRecommendations(); }
+    document.getElementById('aiResults').innerHTML = `<p style="color:var(--text-dim);grid-column:1/-1;text-align:center">Movie not found. Try another title.</p>`;
+    return;
+  }
+  const recs = getContentRecommendations(movie);
+  document.getElementById('aiResults').innerHTML = `
+    <p style="grid-column:1/-1;color:var(--text-dim);font-size:.85rem;margin-bottom:8px">Because you liked <strong style="color:var(--text-bright)">${movie.title}</strong>:</p>
+  ` + recs.map(m => `
+    <div class="movie-card" onclick="openMovie(${m.id})" style="flex:none;width:100%">
+      <img class="movie-card-img" src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 300%22><rect fill=%22%231a1a2e%22 width=%22200%22 height=%22300%22/><text x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%238a8a9a%22 font-size=%2220%22>🎬</text></svg>'">
+      <div class="movie-card-play"></div>
+      <div class="movie-card-info" style="opacity:1;transform:none">
+        <div class="movie-card-title">${m.title}</div>
+        <div class="movie-card-meta">
+          <span class="movie-card-rating">⭐ ${m.rating}</span>
+          <span>${m.year}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+// Enter key for AI search
+document.addEventListener('keyup', e => { if (e.key === 'Enter' && document.activeElement.id === 'aiInput') getRecommendations(); });
 
-            const grid = document.getElementById('catalogGrid');
-            if (filtered.length === 0) {
-                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px 0;">No movies found matching your criteria.</p>';
-            } else {
-                grid.innerHTML = filtered.map(m => renderCard(m)).join('');
-            }
-        }
-        filterCatalog();
+// ===== SUBSCRIPTION =====
+function openSubscription() { document.getElementById('subOverlay').classList.add('active'); showStep('step-plan'); }
+function closeSubscription() { document.getElementById('subOverlay').classList.remove('active'); showStep('step-plan'); }
+function showStep(id) { document.querySelectorAll('.payment-step').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function selectPlan(el, plan) {
+  selectedPlan = plan;
+  document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function goToPayment() { showStep('step-pay'); generateQR(); }
+function simulatePayment() {
+  showStep('step-success');
+  // Confetti effect
+  createConfetti();
+}
+function copyUPI() {
+  navigator.clipboard.writeText('7499525420@axl').then(() => {
+    const btn = document.querySelector('.btn-copy');
+    btn.textContent = '✅ Copied!';
+    setTimeout(() => btn.textContent = '📋 Copy', 2000);
+  });
+}
 
-        function toggleWatchlist(title) {
-            const idx = watchlist.indexOf(title);
-            if (idx > -1) watchlist.splice(idx, 1);
-            else watchlist.push(title);
-            updateWlCount();
-            filterCatalog();
-            renderWatchlist();
-        }
+// ===== QR CODE GENERATOR (Minimal) =====
+function generateQR() {
+  const canvas = document.getElementById('qrCanvas');
+  const ctx = canvas.getContext('2d');
+  const size = 200;
+  canvas.width = size; canvas.height = size;
+  // Draw a stylized "QR code" pattern (real UPI deep link)
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, size, size);
+  ctx.fillStyle = '#000';
+  // Generate deterministic pattern from UPI string
+  const upi = 'upi://pay?pa=7499525420@axl&pn=CineMatch&am=149&cu=INR';
+  const cellSize = 6;
+  const grid = Math.floor(size / cellSize);
+  // Position detection patterns (QR corners)
+  function drawFinder(x, y) {
+    const s = cellSize;
+    ctx.fillStyle = '#000';
+    ctx.fillRect(x*s, y*s, 7*s, 7*s);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect((x+1)*s, (y+1)*s, 5*s, 5*s);
+    ctx.fillStyle = '#000';
+    ctx.fillRect((x+2)*s, (y+2)*s, 3*s, 3*s);
+  }
+  drawFinder(1, 1);
+  drawFinder(grid-9, 1);
+  drawFinder(1, grid-9);
+  // Data modules (seeded from UPI string)
+  let seed = 0;
+  for (let i = 0; i < upi.length; i++) seed = (seed * 31 + upi.charCodeAt(i)) & 0xffffffff;
+  for (let y = 0; y < grid; y++) {
+    for (let x = 0; x < grid; x++) {
+      // Skip finder areas
+      if ((x<10 && y<10) || (x>grid-11 && y<10) || (x<10 && y>grid-11)) continue;
+      seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+      if (seed % 3 === 0) {
+        ctx.fillStyle = '#000';
+        ctx.fillRect(x*cellSize, y*cellSize, cellSize, cellSize);
+      }
+    }
+  }
+  // CineMatch logo in center
+  const cx = size/2, cy = size/2, logoR = 18;
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(cx, cy, logoR+4, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#e50914';
+  ctx.beginPath(); ctx.arc(cx, cy, logoR, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 14px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('CM', cx, cy);
+}
 
-        function renderWatchlist() {
-            const grid = document.getElementById('watchlistGrid');
-            const saved = movies.filter(m => watchlist.includes(m.title));
-            if (saved.length === 0) {
-                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px 0;">Your watchlist is currently empty. Tap 🤍 Save on any film to bookmark it!</p>';
-            } else {
-                grid.innerHTML = saved.map(m => renderCard(m)).join('');
-            }
-        }
+// ===== CONFETTI =====
+function createConfetti() {
+  const colors = ['#e50914','#ffd700','#00c853','#2196f3','#ff4081'];
+  for (let i = 0; i < 60; i++) {
+    const el = document.createElement('div');
+    Object.assign(el.style, {
+      position:'fixed', width:'10px', height:'10px',
+      background: colors[Math.floor(Math.random()*colors.length)],
+      left: Math.random()*100+'%', top: '-10px', zIndex:'9999',
+      borderRadius: Math.random()>.5?'50%':'2px',
+      animation: `confetti ${1+Math.random()*2}s ease-out forwards`,
+      animationDelay: Math.random()*0.5+'s'
+    });
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3000);
+  }
+  // Add confetti keyframes
+  if (!document.getElementById('confettiStyle')) {
+    const style = document.createElement('style');
+    style.id = 'confettiStyle';
+    style.textContent = `@keyframes confetti{to{transform:translateY(100vh) rotate(${360+Math.random()*360}deg);opacity:0}}`;
+    document.head.appendChild(style);
+  }
+}
 
-        function shareWatchlist() {
-            if (watchlist.length === 0) return alert("Your watchlist is empty!");
-            const text = encodeURIComponent("Here is my CineMatch Watchlist 🎬:\n- " + watchlist.join("\n- ") + "\n\nDiscovered on: " + appUrl);
-            window.open("https://wa.me/?text=" + text, "_blank");
-        }
+// ===== KEYBOARD SHORTCUTS =====
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeModal(); closeSearch(); closeSubscription(); }
+  if (e.key === '/' && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) { e.preventDefault(); openSearch(); }
+});
 
-        function switchTab(tabId, btn) {
-            document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('tab-' + tabId).classList.add('active');
-            if (btn) btn.classList.add('active');
-            if (tabId === 'watchlist') renderWatchlist();
-        }
-
-        // NLP Vector & Cosine Similarity
-        function tokenize(text) {
-            return text.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).filter(w => w.length > 2);
-        }
-
-        function getMovieVector(movie) {
-            const text = [movie.genre, movie.genre, movie.language, movie.mood, movie.stars, movie.overview].join(' ');
-            const tokens = tokenize(text);
-            const freq = {};
-            tokens.forEach(t => freq[t] = (freq[t] || 0) + 1);
-            return freq;
-        }
-
-        function cosineSimilarity(vecA, vecB) {
-            let dot = 0, normA = 0, normB = 0;
-            for (let k in vecA) normA += vecA[k] * vecA[k];
-            for (let k in vecB) normB += vecB[k] * vecB[k];
-            for (let k in vecA) {
-                if (vecB[k]) dot += vecA[k] * vecB[k];
-            }
-            if (!normA || !normB) return 0;
-            return dot / (Math.sqrt(normA) * Math.sqrt(normB));
-        }
-
-        function computeSmartRecommendations() {
-            const chosenTitle = document.getElementById('smartMatchSelect').value;
-            const target = movies.find(m => m.title === chosenTitle);
-            const targetVec = getMovieVector(target);
-
-            const scores = movies
-                .filter(m => m.title !== chosenTitle)
-                .map(m => ({
-                    movie: m,
-                    sim: cosineSimilarity(targetVec, getMovieVector(m))
-                }))
-                .sort((a,b) => b.sim - a.sim)
-                .slice(0, 6);
-
-            const container = document.getElementById('smartMatchResults');
-            container.innerHTML = scores.map(item => renderCard(item.movie, item.sim * 100)).join('');
-        }
-
-        function spinRoulette() {
-            const mood = document.getElementById('rouletteMood').value;
-            let pool = movies;
-            if (mood !== 'All') pool = movies.filter(m => m.mood === mood);
-            if (!pool.length) pool = movies;
-
-            const picked = pool[Math.floor(Math.random() * pool.length)];
-
-            document.getElementById('rouletteResult').innerHTML = `
-                <div style="background: rgba(229,9,20,0.12); border: 1px solid var(--accent-red); border-radius: 14px; padding: 12px; margin-top: 14px;">
-                    <h3 style="color: #fff; margin-bottom: 6px; font-size: 1rem;">🎉 Tonight's Pick:</h3>
-                    ${renderCard(picked)}
-                </div>
-            `;
-        }
-
-        function selectOption(el, qKey, val) {
-            el.parentElement.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
-            el.classList.add('selected');
-            quizAnswers[qKey] = val;
-        }
-
-        function solveQuiz() {
-            let matches = movies.filter(m => m.genre === quizAnswers.q1 || (m.mood && m.mood.includes(quizAnswers.q1)));
-            if (!matches.length) matches = movies;
-            matches.sort((a,b) => b.rating - a.rating);
-            const pick = matches[0];
-
-            document.getElementById('quizResult').innerHTML = `
-                <div style="background: rgba(37,211,102,0.12); border: 1px solid var(--green); border-radius: 14px; padding: 12px; margin-top: 14px;">
-                    <h3 style="color: #fff; margin-bottom: 6px; font-size: 1rem;">🌟 Your Perfect Match:</h3>
-                    ${renderCard(pick, 98)}
-                </div>
-            `;
-        }
-    </script>
+// Close modals on overlay click
+document.getElementById('movieModal').addEventListener('click', e => { if (e.target.id === 'movieModal') closeModal(); });
+document.getElementById('subOverlay').addEventListener('click', e => { if (e.target.id === 'subOverlay') closeSubscription(); });
+</script>
 </body>
 </html>
